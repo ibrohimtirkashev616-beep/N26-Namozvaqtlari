@@ -1,0 +1,26 @@
+# Maxfiy kalitlar va muhit sozlamalari
+.env
+.env.local
+
+# Python kesh va virtual muhit
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Ma'lumotlar bazasi va vaqtinchalik fayllar
+*.db
+*.sqlite3
+hr_database.db
+temp_resumes/
+downloads/
+.system_generated/
+
+# IDE va muhit fayllari
+.vscode/
+.idea/
+*.swp
