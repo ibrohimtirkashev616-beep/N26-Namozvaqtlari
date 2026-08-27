@@ -1,5 +1,6 @@
 """
 GitHub Repozitoriyasiga Loyihani Yuklash (Push) Skripti
+Repozitoriy: https://github.com/ibrohimtirkashev616-beep/N26-InsatantSave
 """
 
 import sys
@@ -15,7 +16,7 @@ from dulwich import porcelain
 from dulwich.repo import Repo
 
 REPO_PATH = Path(__file__).resolve().parent
-DEFAULT_REMOTE_URL = "https://github.com/ibrohimtirkashev616-beep/N26.git"
+DEFAULT_REMOTE_URL = "https://github.com/ibrohimtirkashev616-beep/N26-InsatantSave.git"
 
 
 def push_project(token: str, remote_url: str = DEFAULT_REMOTE_URL):
@@ -25,7 +26,7 @@ def push_project(token: str, remote_url: str = DEFAULT_REMOTE_URL):
         print("❌ Token kiritilmadi!")
         return False
 
-    auth_url = f"https://oauth2:{token}@github.com/ibrohimtirkashev616-beep/N26.git"
+    auth_url = f"https://oauth2:{token}@github.com/ibrohimtirkashev616-beep/N26-InsatantSave.git"
 
     print("📦 Fayllar tekshirilmoqda...")
     try:
@@ -36,11 +37,11 @@ def push_project(token: str, remote_url: str = DEFAULT_REMOTE_URL):
         
         # Status tekshirish
         status = porcelain.status(str(REPO_PATH))
-        if status.staged.get("add") or status.staged.get("modify") or status.staged.get("delete"):
+        if status.staged.get("add") or status.staged.get("modify") or status.staged.get("delete") or status.unstaged:
             print("📝 Yangi o'zgarishlar commit qilinmoqda...")
             porcelain.commit(
                 str(REPO_PATH),
-                message="Update: AI HR Agent Telegram Bot files",
+                message="Initial commit: InstantSave Telegram Bot & Project files",
                 author="Ibrohim <ibrohim@example.com>"
             )
             print("✅ O'zgarishlar commit qilindi.")
@@ -48,10 +49,6 @@ def push_project(token: str, remote_url: str = DEFAULT_REMOTE_URL):
             print("ℹ️ Barcha fayllar allaqachon commit qilingan.")
 
         print(f"🚀 GitHub ga yuklanmoqda ({remote_url})...")
-        
-        # Push qilish
-        ref = repo.head()
-        print(f"Boshlang'ich commit: {ref}")
         
         try:
             porcelain.push(
@@ -61,7 +58,7 @@ def push_project(token: str, remote_url: str = DEFAULT_REMOTE_URL):
                 force=True
             )
         except Exception as err1:
-            print(f"Master->Main urinishi: {err1}, Main->Main sinab ko'rilmoqda...")
+            print(f"Master->Main urinishi: {err1}, HEAD->main sinab ko'rilmoqda...")
             porcelain.push(
                 str(REPO_PATH),
                 remote_location=auth_url,
@@ -69,12 +66,12 @@ def push_project(token: str, remote_url: str = DEFAULT_REMOTE_URL):
                 force=True
             )
             
-        print("🎉 MUVAFFAQIYATLI YUKLANDI! (Push Success)")
-        print(f"🔗 Repozitoriy: https://github.com/ibrohimtirkashev616-beep/N26")
+        print("\n🎉 MUVAFFAQIYATLI YUKLANDI! (Push Success)")
+        print(f"🔗 Repozitoriy: https://github.com/ibrohimtirkashev616-beep/N26-InsatantSave")
         return True
 
     except Exception as e:
-        print(f"❌ Yuklashda xatolik yuz berdi: {type(e)} - {e}")
+        print(f"\n❌ Yuklashda xatolik yuz berdi: {type(e)} - {e}")
         return False
 
 
@@ -87,6 +84,6 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         github_token = sys.argv[1]
     else:
-        github_token = input("Token: ").strip()
+        github_token = input("GitHub Personal Access Token (PAT) kiriting: ").strip()
 
     push_project(github_token)
