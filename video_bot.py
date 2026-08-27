@@ -48,7 +48,8 @@ from downloader import (
 # .env faylidan sozlamalarni yuklash
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
-BOT_TOKEN = os.getenv("VIDEO_BOT_TOKEN") or os.getenv("BOT_TOKEN") or "8847541613:AAHLQMc5o1VRtOsvHGMvp0dA5y-KbL-m3mo"
+raw_token = os.getenv("VIDEO_BOT_TOKEN") or os.getenv("BOT_TOKEN") or "8847541613:AAHLQMc5o1VRtOsvHGMvp0dA5y-KbL-m3mo"
+BOT_TOKEN = raw_token.strip().replace(" ", "").replace("\n", "").replace("\r", "")
 
 # Logging sozlamasi
 logging.basicConfig(
