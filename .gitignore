@@ -1,6 +1,13 @@
-# Maxfiy kalitlar va muhit sozlamalari
+﻿# Maxfiy kalitlar va muhit sozlamalari (token hech qachon GitHub'ga yuklanmasin)
 .env
 .env.local
+.env.*
+!.env.example
+
+# Ma'lumotlar bazasi va kesh fayllar
+*.db
+*.sqlite3
+namoz_bot.db
 
 # Python kesh va virtual muhit
 __pycache__/
@@ -11,14 +18,6 @@ __pycache__/
 env/
 venv/
 ENV/
-
-# Ma'lumotlar bazasi va vaqtinchalik fayllar
-*.db
-*.sqlite3
-hr_database.db
-temp_resumes/
-downloads/
-.system_generated/
 
 # IDE va muhit fayllari
 .vscode/
