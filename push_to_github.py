@@ -1,6 +1,7 @@
+﻿# -*- coding: utf-8 -*-
 """
 GitHub Repozitoriyasiga Loyihani Yuklash (Push) Skripti
-Repozitoriy: https://github.com/ibrohimtirkashev616-beep/N26-InsatantSave
+Repozitoriy: https://github.com/ibrohimtirkashev616-beep/N26-Namozvaqtlari
 """
 
 import sys
@@ -16,7 +17,7 @@ from dulwich import porcelain
 from dulwich.repo import Repo
 
 REPO_PATH = Path(__file__).resolve().parent
-DEFAULT_REMOTE_URL = "https://github.com/ibrohimtirkashev616-beep/N26-InsatantSave.git"
+DEFAULT_REMOTE_URL = "https://github.com/ibrohimtirkashev616-beep/N26-Namozvaqtlari.git"
 
 
 def push_project(token: str, remote_url: str = DEFAULT_REMOTE_URL):
@@ -26,7 +27,7 @@ def push_project(token: str, remote_url: str = DEFAULT_REMOTE_URL):
         print("❌ Token kiritilmadi!")
         return False
 
-    auth_url = f"https://oauth2:{token}@github.com/ibrohimtirkashev616-beep/N26-InsatantSave.git"
+    auth_url = f"https://oauth2:{token}@github.com/ibrohimtirkashev616-beep/N26-Namozvaqtlari.git"
 
     print("📦 Fayllar tekshirilmoqda...")
     try:
@@ -41,7 +42,7 @@ def push_project(token: str, remote_url: str = DEFAULT_REMOTE_URL):
             print("📝 Yangi o'zgarishlar commit qilinmoqda...")
             porcelain.commit(
                 str(REPO_PATH),
-                message="Initial commit: InstantSave Telegram Bot & Project files",
+                message="Namoz Vaqtlari va Azon Eslatma Telegram Boti (12 viloyat, 3 til, Aladhan API)",
                 author="Ibrohim <ibrohim@example.com>"
             )
             print("✅ O'zgarishlar commit qilindi.")
@@ -67,7 +68,7 @@ def push_project(token: str, remote_url: str = DEFAULT_REMOTE_URL):
             )
             
         print("\n🎉 MUVAFFAQIYATLI YUKLANDI! (Push Success)")
-        print(f"🔗 Repozitoriy: https://github.com/ibrohimtirkashev616-beep/N26-InsatantSave")
+        print(f"🔗 Repozitoriy: https://github.com/ibrohimtirkashev616-beep/N26-Namozvaqtlari")
         return True
 
     except Exception as e:

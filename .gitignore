@@ -8,6 +8,8 @@
 *.db
 *.sqlite3
 namoz_bot.db
+downloads/
+temp_resumes/
 
 # Python kesh va virtual muhit
 __pycache__/
