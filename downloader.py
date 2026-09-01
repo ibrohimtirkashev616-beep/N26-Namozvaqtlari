@@ -97,7 +97,8 @@ def _download_sync(url: str, output_template: str, max_filesize_mb: Optional[int
         'noplaylist': True,
         'extractor_args': {
             'youtube': {
-                'player_client': ['android', 'ios', 'web'],
+                'player_client': ['android', 'ios'],
+                'player_skip': ['webpage', 'configs'],
             }
         },
         'http_headers': {
