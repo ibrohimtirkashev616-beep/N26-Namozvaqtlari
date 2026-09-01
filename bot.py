@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Namoz Vaqtlari va Azon Eslatma Telegram Boti
 Asosiy ishga tushirish fayli (aiogram 3 + APScheduler)
@@ -27,6 +27,8 @@ sys.path.insert(0, str(BASE_DIR))
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand, BotCommandScopeDefault
 from aiogram.client.default import DefaultBotProperties
+from aiogram.client.telegram import TelegramAPIServer
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ParseMode
 
 import config
@@ -183,10 +185,22 @@ async def main():
     await database.init_db()
 
     # 2. Bot va Dispatcher
-    bot = Bot(
-        token=config.BOT_TOKEN,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML)
-    )
+    session = AiohttpSession(timeout=300)
+    if config.USE_LOCAL_BOT_API:
+        custom_server = TelegramAPIServer.from_base(config.LOCAL_BOT_API_URL, is_local=True)
+        bot = Bot(
+            token=config.BOT_TOKEN,
+            session=session,
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+            server=custom_server
+        )
+        logger.info(f"Local Telegram Bot API serveriga ulanmoqda: {config.LOCAL_BOT_API_URL}")
+    else:
+        bot = Bot(
+            token=config.BOT_TOKEN,
+            session=session,
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+        )
     dp = Dispatcher()
 
     # 3. Routerlarni ulash (tartib muhim!)

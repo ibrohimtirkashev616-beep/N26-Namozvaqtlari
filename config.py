@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Namoz Vaqtlari va Azon Eslatma Boti - Konfiguratsiya
 O'zbekistonning barcha viloyat markazlari aniq koordinatalari bilan.
@@ -14,6 +14,12 @@ load_dotenv(BASE_DIR / ".env")
 
 raw_token = os.getenv("BOT_TOKEN", "").strip()
 BOT_TOKEN = raw_token.replace(" ", "").replace("\n", "").replace("\r", "")
+
+# Telegram API sozlamalari (my.telegram.org va Local Bot API Server)
+TELEGRAM_API_ID = os.getenv("TELEGRAM_API_ID", "").strip()
+TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "").strip()
+USE_LOCAL_BOT_API = os.getenv("USE_LOCAL_BOT_API", "false").lower() in ("true", "1", "yes")
+LOCAL_BOT_API_URL = os.getenv("LOCAL_BOT_API_URL", "http://localhost:8081").strip()
 
 CALCULATION_METHOD = int(os.getenv("CALCULATION_METHOD", "3"))
 TIMEZONE = os.getenv("TIMEZONE", "Asia/Tashkent")
