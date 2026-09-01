@@ -67,6 +67,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+IS_LOCAL_API_ACTIVE = False
+
 dp = Dispatcher()
 
 
@@ -96,17 +98,16 @@ def format_duration(seconds: int) -> str:
 async def cmd_start(message: Message):
     """/start komandasi uchun handler."""
     user_name = message.from_user.full_name if message.from_user else "Foydalanuvchi"
-    limit_text = "2 GB (2000 MB)" if USE_LOCAL_BOT_API else "50 MB"
+    limit_text = "2 GB (2000 MB)" if IS_LOCAL_API_ACTIVE else "50 MB"
     text = (
         f"Assalomu alaykum, <b>{user_name}</b>! 👋\n\n"
-        "Men <b>Universal Video Yuklovchi Botman</b> 📥\n"
-        f"⚡ <i>Local Telegram Bot API ulangan — Maksimal hajm: <b>{limit_text}</b>!</i>\n\n"
+        "Men <b>Universal Video Yuklovchi Botman</b> 📥\n\n"
         "Menga quyidagi ijtimoiy tarmoqlardan birining video linkini yuboring:\n"
         "• 📸 <b>Instagram</b> (Reels, Post)\n"
         "• 🎵 <b>TikTok</b> (Videolar)\n"
         "• 📌 <b>Pinterest</b> (Pin videolar)\n"
         "• 👥 <b>Facebook</b> (Reels, Watch)\n"
-        "• ▶️ <b>YouTube</b> (Shorts, Videolar, 1080p, 4K)\n\n"
+        "• ▶️ <b>YouTube</b> (Shorts, Videolar)\n\n"
         "🚀 <i>Shunchaki linkni bu yerga tashlang, men videoni yuklab beraman!</i>"
     )
     await message.answer(text, parse_mode=ParseMode.HTML)
@@ -115,15 +116,15 @@ async def cmd_start(message: Message):
 @dp.message(Command("help"))
 async def cmd_help(message: Message):
     """/help komandasi uchun handler."""
-    limit_text = "2 GB" if USE_LOCAL_BOT_API else "50 MB"
+    limit_text = "2 GB" if IS_LOCAL_API_ACTIVE else "50 MB"
     text = (
         "📖 <b>Botdan foydalanish bo'yicha qo'llanma:</b>\n\n"
         "1. Ijtimoiy tarmoqdagi videoning havolasini (linkini) nusxalang (Copy link).\n"
         "2. Havolani botga yuboring.\n"
         "3. Bot videoni avtomatik yuklab sizga taqdim etadi.\n\n"
-        "⚡ <b>Imkoniyatlar:</b>\n"
-        f"• Maksimal video hajmi: <b>{limit_text}</b> gacha.\n"
-        "• Eng yuqori sifatda (Full HD, 2K, 4K) yuklab berish."
+        "⚠️ <b>Eslatmalar:</b>\n"
+        f"• Telegram orqali maksimal <b>{limit_text}</b> gacha bo'lgan videolarni yuborish mumkin.\n"
+        "• Yopiq (private) akkauntlardagi videolarni yuklab bo'lmaydi."
     )
     await message.answer(text, parse_mode=ParseMode.HTML)
 
@@ -154,9 +155,11 @@ async def handle_text_message(message: Message, bot: Bot):
     await bot.send_chat_action(chat_id=message.chat.id, action=ChatAction.UPLOAD_VIDEO)
 
     downloaded_file_path = None
+    max_mb = 2000 if IS_LOCAL_API_ACTIVE else 48
+    max_allowed_bytes = (2000 if IS_LOCAL_API_ACTIVE else 49) * 1024 * 1024
 
     try:
-        media_info = await download_media(url)
+        media_info = await download_media(url, max_filesize_mb=max_mb)
         downloaded_file_path = media_info.get("file_path")
         filesize = media_info.get("filesize", 0)
 
@@ -168,12 +171,20 @@ async def handle_text_message(message: Message, bot: Bot):
             )
             return
 
-        if filesize > MAX_FILE_SIZE_BYTES:
-            await status_msg.edit_text(
-                f"⚠️ <b>Video hajmi juda katta ({format_size(filesize)})!</b>\n\n"
-                f"Maksimal ruxsat etilgan hajm: {format_size(MAX_FILE_SIZE_BYTES)}.",
-                parse_mode=ParseMode.HTML
-            )
+        if filesize > max_allowed_bytes:
+            if not IS_LOCAL_API_ACTIVE:
+                await status_msg.edit_text(
+                    f"⚠️ <b>Video hajmi juda katta ({format_size(filesize)})!</b>\n\n"
+                    "Telegram boti orqali maksimal <b>50 MB</b> gacha bo'lgan videolarni yuborish mumkin.\n"
+                    "💡 <i>(Bu video davomiyligi juda uzun bo'lgani uchun 50 MB dan oshib ketdi).</i>",
+                    parse_mode=ParseMode.HTML
+                )
+            else:
+                await status_msg.edit_text(
+                    f"⚠️ <b>Video hajmi juda katta ({format_size(filesize)})!</b>\n\n"
+                    f"Maksimal ruxsat etilgan hajm: {format_size(max_allowed_bytes)}.",
+                    parse_mode=ParseMode.HTML
+                )
             return
 
         title = media_info.get("title", "Video")
@@ -256,6 +267,7 @@ async def is_local_api_running(url: str) -> bool:
 
 
 async def main():
+    global IS_LOCAL_API_ACTIVE
     session = AiohttpSession(timeout=600)
     
     local_server_active = False
@@ -264,6 +276,8 @@ async def main():
             local_server_active = True
         else:
             logger.warning(f"⚠️ {LOCAL_BOT_API_URL} ga ulanib bo'lmadi (Docker yoqilmagan). Standart api.telegram.org ga ulanmoqda...")
+
+    IS_LOCAL_API_ACTIVE = local_server_active
 
     if local_server_active:
         custom_server = TelegramAPIServer.from_base(LOCAL_BOT_API_URL, is_local=True)

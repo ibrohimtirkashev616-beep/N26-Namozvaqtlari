@@ -70,17 +70,27 @@ def get_platform_badge(platform: str) -> str:
     return badges.get(platform, "🌐 Video")
 
 
-def _download_sync(url: str, output_template: str) -> Dict[str, Any]:
+def _download_sync(url: str, output_template: str, max_filesize_mb: Optional[int] = None) -> Dict[str, Any]:
     """
     Sinxron ravishda yt-dlp orqali videoni yuklab oluvchi ichki funksiya.
-    Local Telegram Bot API 2GB gacha qo'llab-quvvatlagani sababli eng yuqori sifat olinadi.
     """
     if yt_dlp is None:
         raise RuntimeError("yt-dlp kutubxonasi o'rnatilmagan! Iltimos: pip install yt-dlp")
 
+    if max_filesize_mb and max_filesize_mb <= 50:
+        format_str = (
+            f"best[filesize<{max_filesize_mb}M]/"
+            f"bestvideo[filesize<{max_filesize_mb - 8}M]+bestaudio[filesize<8M]/"
+            f"best[height<=720][filesize<{max_filesize_mb}M]/"
+            f"best[height<=480][filesize<{max_filesize_mb}M]/"
+            f"best[height<=360]/"
+            f"best"
+        )
+    else:
+        format_str = "bestvideo+bestaudio/best"
+
     ydl_opts = {
-        # Eng yaxshi sifat (video + audio birlashtirilgan)
-        'format': 'bestvideo+bestaudio/best',
+        'format': format_str,
         'outtmpl': output_template,
         'quiet': True,
         'no_warnings': True,
@@ -129,12 +139,12 @@ def _download_sync(url: str, output_template: str) -> Dict[str, Any]:
         }
 
 
-async def download_media(url: str) -> Dict[str, Any]:
+async def download_media(url: str, max_filesize_mb: Optional[int] = None) -> Dict[str, Any]:
     """
     Asinxron tarzda videoni yuklab oladi.
     """
     unique_id = uuid.uuid4().hex[:10]
     output_template = os.path.join(DOWNLOAD_DIR, f"video_{unique_id}.%(ext)s")
     
-    result = await asyncio.to_thread(_download_sync, url, output_template)
+    result = await asyncio.to_thread(_download_sync, url, output_template, max_filesize_mb)
     return result
